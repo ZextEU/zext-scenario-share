@@ -1,0 +1,9 @@
+name = "zext-scenario-hub"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "zext-scenario-hub"
+# Paste the database_id that `npx wrangler d1 create zext-scenario-hub` prints:
+database_id = "REPLACE_WITH_DATABASE_ID"

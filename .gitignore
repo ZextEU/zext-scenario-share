@@ -1,0 +1,5 @@
+# The hub's own deploy config holds your Cloudflare database id: keep it local (wrangler.example.toml is the template).
+hub/wrangler.toml
+hub/node_modules/
+hub/.wrangler/
+hub/.dev.vars
