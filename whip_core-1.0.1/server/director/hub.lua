@@ -662,7 +662,7 @@ end, 2000)
 --
 --   exports.whip_core:ImportScenarioCode(code, opts?) -> true, { key, name, missing } | false, why   WAITS
 --     code: a short code (ZX-...), a long code (WDS1./WDS0.), a scenario's JSON text, or a scenario table.
---     opts: { key?, name? }. Without a key, one is made from the code's own (or its name), with -2, -3... on the
+--     opts: { key?, name? }. Without a key, one is made from the code's own (or its name), with _2, _3... on the
 --     end when that is taken. A key you name that is taken is refused, never written over.
 --   exports.whip_core:GetScenarioShareCode(key, rev?) -> code | false, why   (a WDS0. long code: any page reads it)
 --
@@ -927,8 +927,9 @@ local function docFromCode(code)
     return docFromCode(doc)
 end
 
+--- A key made the page's way (director.js slug): lower case, runs of anything else to one _, trimmed, 40 long.
 local function keyFrom(s)
-    s = type(s) == 'string' and s:lower():gsub('[^%w_%-]+', '_'):gsub('^[_%-]+', ''):sub(1, 56) or ''
+    s = type(s) == 'string' and s:lower():gsub('[^a-z0-9]+', '_'):gsub('^_+', ''):gsub('_+$', ''):sub(1, 40) or ''
     return #s >= 2 and s or 'imported'
 end
 
@@ -954,8 +955,8 @@ exports('ImportScenarioCode', function(code, opts)
         local i = 1
         while DirectorStore.get(key) do
             i = i + 1
-            if i > 99 then return false, base .. ' and -2 to -99 are all taken: name a key' end
-            key = base .. '-' .. i
+            if i > 99 then return false, base .. ' and _2 to _99 are all taken: name a key' end
+            key = base .. '_' .. i   -- (the page's Import code does the same: courier, courier_2, ...)
         end
     end
     local gated = Director.gatedChange and Director.gatedChange(nil, doc, nil)

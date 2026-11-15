@@ -5,7 +5,9 @@
 - **Resources can import Director creations.** New server export `ImportScenarioCode(code, opts?)` takes a short code, a long code, a scenario's JSON, or a scenario table, and makes a new switched-off scenario, with the same checks as Import code. It waits for the Director to finish loading after a restart.
 - New server export `GetScenarioShareCode(key, rev?)` gives a scenario's long code (`WDS0.`) from a script.
 - New convar `zext_share_hub`: the hub the server uses for short codes in scripts (`""` turns it off).
+- Keys made by `ImportScenarioCode` follow the same rule as the Import code button (`courier`, then `courier_2`, `courier_3`…).
 - Only `server/director/hub.lua` changed. The other two files are the same as 1.0.0.
+- The README has preview images of the windows (`docs/screenshots/`).
 
 ## 1.0.0 (2026-11-15)
 

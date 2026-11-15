@@ -10,7 +10,7 @@ Made by **Zext**. Free to use. This is an unofficial add-on that works with WHIP
 
 ## Contents
 
-- [What it adds](#what-it-adds)
+- [What it adds](#what-it-adds) ([what it looks like](#what-it-looks-like))
 - [Requirements](#requirements)
 - [Install](#install)
 - [How to use it](#how-to-use-it)
@@ -41,6 +41,16 @@ Imports are safe by design:
 - **The same checks as the editor's Save.** The scenario is read as plain data and checked by WHIP's own scenario reader. A card the importer isn't allowed to add is refused.
 - **Missing pieces are named.** If the scenario uses items or cards your server doesn't have, the import tells you which, so you can swap them in the editor.
 - **Only people with Director access** (`director.build`) can share or import in game, the same people who can already build scenarios. Server scripts can import too (they're your own code), with the same checks, and a script can never bring in a permission-gated card.
+
+### What it looks like
+
+*Previews, drawn with whip_core's own panel styles and the add-on's real windows. The Scenarios page behind each window is simplified.*
+
+| Share code | Short code |
+|---|---|
+| ![The Share code window, with the long code and a Copy code button](docs/screenshots/1-share-code.png) | ![The Share code window after Get short code, showing ZX-DTYSM07](docs/screenshots/2-short-code.png) |
+| **Import code** | **A broken code is refused** |
+| ![The Import code window, filled in from a short code](docs/screenshots/3-import-code.png) | ![The Import code window with a cut-off code and the Import button greyed out](docs/screenshots/4-import-broken-code.png) |
 
 ---
 
@@ -164,7 +174,7 @@ local ok, result = exports.whip_core:ImportScenarioCode(code, { key = 'my_heist'
 | Argument | What it is |
 |---|---|
 | `code` | Any of: a short code (`ZX-DTYSM07`), a long code (`WDS1.…` or `WDS0.…`), a scenario's JSON text, or a scenario as a Lua table. |
-| `opts.key` | *Optional.* The key to save it under. If that key is taken, the import is refused, never written over. Leave it out and a key is made from the scenario's own key or name, with `-2`, `-3`… on the end when taken. |
+| `opts.key` | *Optional.* The key to save it under. If that key is taken, the import is refused, never written over. Leave it out and a key is made from the scenario's own key or name, with `_2`, `_3`… on the end when taken, the same as the Import code button. |
 | `opts.name` | *Optional.* The name shown in the Director. Defaults to the scenario's own name. |
 
 It returns `true, { key, name, missing }` or `false, "why"`. `missing` is `{ items = {...}, cards = {...} }`: things the scenario uses that this server doesn't have.
