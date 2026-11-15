@@ -14,6 +14,7 @@ Made by **Zext**. Free to use. This is an unofficial add-on that works with WHIP
 - [Requirements](#requirements)
 - [Install](#install)
 - [How to use it](#how-to-use-it)
+- [Importing from your own resource (exports)](#importing-from-your-own-resource-exports)
 - [What a code carries, and what it doesn't](#what-a-code-carries-and-what-it-doesnt)
 - [Short codes and the community hub](#short-codes-and-the-community-hub)
 - [Updating whip_core, or removing this](#updating-whip_core-or-removing-this)
@@ -31,6 +32,7 @@ On `/whip` → **Director** → **Scenarios**:
 |---|---|---|
 | A scenario's page, next to Duplicate | **Share code** | Shows the scenario as a long code (`WDS1.…`) with a **Copy code** button. **Get short code** uploads it to the hub and gives you a short code (`ZX-…`). |
 | The toolbar at the top of the list | **Import code** | Paste a short or long code. It shows the scenario's name, its number of cards and placed things, and its description, then makes a **new scenario, switched off**. |
+| Your own server scripts | `exports.whip_core:ImportScenarioCode(code)` | The same import, from a resource: ship Director creations with your script as codes. Also `GetScenarioShareCode(key)` to get a code from a script. See [Importing from your own resource](#importing-from-your-own-resource-exports). |
 
 Imports are safe by design:
 
@@ -38,7 +40,7 @@ Imports are safe by design:
 - **Nothing switches on by itself.** Imports arrive as drafts. You look them over, Test them, and switch them on yourself.
 - **The same checks as the editor's Save.** The scenario is read as plain data and checked by WHIP's own scenario reader. A card the importer isn't allowed to add is refused.
 - **Missing pieces are named.** If the scenario uses items or cards your server doesn't have, the import tells you which, so you can swap them in the editor.
-- **Only people with Director access** (`director.build`) can share or import, the same people who can already build scenarios.
+- **Only people with Director access** (`director.build`) can share or import in game, the same people who can already build scenarios. Server scripts can import too (they're your own code), with the same checks, and a script can never bring in a permission-gated card.
 
 ---
 
@@ -149,6 +151,67 @@ An imported scenario was built by someone else, on another server. Before player
 
 ---
 
+## Importing from your own resource (exports)
+
+Other resources can import Director creations too. This is handy when you sell or share a script that comes with missions: put the scenario's code in your resource, and it lands in the server's Director when your script starts. These are **server-side** exports.
+
+### `ImportScenarioCode(code, opts?)`
+
+```lua
+local ok, result = exports.whip_core:ImportScenarioCode(code, { key = 'my_heist', name = 'Bank Job' })
+```
+
+| Argument | What it is |
+|---|---|
+| `code` | Any of: a short code (`ZX-DTYSM07`), a long code (`WDS1.…` or `WDS0.…`), a scenario's JSON text, or a scenario as a Lua table. |
+| `opts.key` | *Optional.* The key to save it under. If that key is taken, the import is refused, never written over. Leave it out and a key is made from the scenario's own key or name, with `-2`, `-3`… on the end when taken. |
+| `opts.name` | *Optional.* The name shown in the Director. Defaults to the scenario's own name. |
+
+It returns `true, { key, name, missing }` or `false, "why"`. `missing` is `{ items = {...}, cards = {...} }`: things the scenario uses that this server doesn't have.
+
+It **waits** (for the Director to finish loading after a restart, up to 20 seconds; for the hub, if you gave a short code; and for the database), so call it from a thread such as `CreateThread`.
+
+Exactly like **Import code** in game, the result is a **new scenario, switched off**. An admin still looks it over and switches it on. A script has no player permissions, so a scenario containing a permission-gated card is refused. The server console prints which resource imported what.
+
+**Example: import once, the first time your resource starts.** Keep the code in a file in your resource (so a long code doesn't clutter your Lua):
+
+```lua
+-- fxmanifest.lua
+server_script 'server.lua'
+files { 'scenarios/bank_job.txt' }
+dependency 'whip_core'
+```
+
+```lua
+-- server.lua
+CreateThread(function()
+    local code = LoadResourceFile(GetCurrentResourceName(), 'scenarios/bank_job.txt')
+    local ok, result = exports.whip_core:ImportScenarioCode(code, { key = 'bank_job' })
+    if ok then
+        print(('Bank Job added to the Director as %s: an admin needs to switch it on'):format(result.key))
+        if #result.missing.items > 0 then print('  This server is missing items: ' .. table.concat(result.missing.items, ', ')) end
+    elseif result:find('is taken') then
+        -- Imported on an earlier start: nothing to do.
+    else
+        print('Bank Job could not be added: ' .. result)
+    end
+end)
+```
+
+Naming a fixed `key` is what makes "import once" work: the second start finds the key taken and does nothing, so an admin's edits are never lost.
+
+> A short code (`ZX-…`) needs the hub to be online when your script runs. For anything you ship to other people, use the **long code**: it works offline, forever.
+
+### `GetScenarioShareCode(key, rev?)`
+
+```lua
+local code, why = exports.whip_core:GetScenarioShareCode('bank_job')
+```
+
+Returns the scenario's long code (newest saved revision, or `rev` if given), or `false, "why"`. The code starts with `WDS0.` (not compressed, so it's longer than one from the Share code button), and works with **Import code** and `ImportScenarioCode` on any server with this add-on. Use it for backups, or to put a server's scenario into your resource.
+
+---
+
 ## What a code carries, and what it doesn't
 
 | Carried | Not carried (stays on the server that made it) |
@@ -185,11 +248,17 @@ You can run your own copy for free on Cloudflare. See [`hub/README.md`](hub/READ
 const HUB_URL = 'https://zext-scenario-hub.whipshare.workers.dev';
 ```
 
-Put your own hub's address there, with no slash at the end, and `restart whip_core`. Servers only see each other's short codes when they use the same hub, but long codes always work between any of them.
+Put your own hub's address there, with no slash at the end. Scripts using `ImportScenarioCode` look short codes up separately, so also add this to your `server.cfg`:
+
+```
+set zext_share_hub "https://your-hub.your-name.workers.dev"
+```
+
+Then `restart whip_core`. Servers only see each other's short codes when they use the same hub, but long codes always work between any of them.
 
 ### Turn short codes off
 
-Set `const HUB_URL = '';`. **Get short code** disappears, Import takes only long codes, and the game never contacts the hub.
+Set `const HUB_URL = '';` in `director.js`, and `set zext_share_hub ""` in `server.cfg`. **Get short code** disappears, imports take only long codes, and neither the game nor the server contacts the hub.
 
 ---
 
@@ -218,6 +287,8 @@ Set `const HUB_URL = '';`. **Get short code** disappears, Import takes only long
 | "Imported, but this server has no items: …" | Add those items to your server, or open the scenario's editor and pick items you do have. |
 | Imported scenario won't switch on | Open its editor and press **Check**. It lists what to fix: missing lore characters, missing cards, unplaced things. |
 | "This game cannot unpack that code" | The player's FiveM is very old. Update FiveM. |
+| "No such export ImportScenarioCode" | `server/director/hub.lua` is an older copy, or your resource started before whip_core. Copy the file again and add `dependency 'whip_core'` to your resource's `fxmanifest.lua`. |
+| `ImportScenarioCode` says "The Director is still starting" | It already waits up to 20 seconds for the Director to load. If you still see this, the database is slow or down: check the server console for whip_core errors. |
 
 ---
 
@@ -244,7 +315,7 @@ Errors are `{ "error": "words to show" }`. CORS is open, so a page or tool can c
 
 ### What changed in whip_core
 
-- `server/director/hub.lua`: two Director callbacks, `shareDoc` (builder permission: the newest revision as a document) and `importCode` (builder permission: takes an uploaded document and makes a new draft with `DirectorStore.create`, after `gatedChange`). Imports reuse whip_core's own latent upload, `whip_core:server:directorDoc`, which copies the document as plain data and loads it with `DirectorDoc.load`.
+- `server/director/hub.lua`: two Director callbacks, `shareDoc` (builder permission: the newest revision as a document) and `importCode` (builder permission: takes an uploaded document and makes a new draft with `DirectorStore.create`, after `gatedChange`). Imports reuse whip_core's own latent upload, `whip_core:server:directorDoc`, which copies the document as plain data and loads it with `DirectorDoc.load`. Two server exports, `ImportScenarioCode` and `GetScenarioShareCode`, do the same from scripts: the server unpacks `WDS1.` codes with its own small inflate (capped at 512 KB, so a tiny code can't unpack into a huge one) and looks short codes up with `PerformHttpRequest` at the `zext_share_hub` convar.
 - `tools/panel_sections/director.lua`: the `shareDoc` op, and a `wpDirectorImport` NUI callback that uploads the document and calls `importCode`.
 - `html/js/wp/director.js`: the buttons, the two windows, packing and unpacking codes in the page, and the hub requests.
 
