@@ -56,7 +56,7 @@ Imports are safe by design:
 
 ## Requirements
 
-- A FiveM server running **WHIP** with **whip_core 1.0.1**. Check the `version` line in `whip_core/fxmanifest.lua`. Other versions: see [Install, option C](#option-c--other-whip_core-versions-by-hand).
+- A FiveM server running **WHIP** with **whip_core 1.2.0** (the latest) or **1.0.1**. The three files this changes are the same in both versions, so the same files and patch work on either. Check the `version` line in `whip_core/fxmanifest.lua`. Other versions: see [Install, option C](#option-c--other-whip_core-versions-by-hand).
 - Director access for the people who'll use it. Give it in `/whip` → Director → Access.
 - Nothing else. No extra resource, database table or convar. Short codes use the free community hub out of the box.
 
@@ -70,12 +70,12 @@ This add-on changes three files inside `whip_core`. Pick **one** option.
 
 ### Option A — drop-in files (easiest)
 
-For **whip_core 1.0.1** only.
+For **whip_core 1.2.0** or **1.0.1**.
 
 1. Stop your server, or be ready to restart `whip_core`.
-2. Open this repository's `whip_core-1.0.1` folder. It holds three files in the same folders they live in inside `whip_core`:
+2. Open this repository's `whip_core-1.2.0` folder. It holds three files in the same folders they live in inside `whip_core`:
    ```
-   whip_core-1.0.1/
+   whip_core-1.2.0/
    ├── html/js/wp/director.js
    ├── server/director/hub.lua
    └── tools/panel_sections/director.lua
@@ -86,31 +86,31 @@ For **whip_core 1.0.1** only.
 
 ### Option B — apply the patch with git
 
-For **whip_core 1.0.1**. Useful if you keep your server in git.
+For **whip_core 1.2.0** or **1.0.1**. Useful if you keep your server in git.
 
 ```bash
 cd path/to/resources/whip_core
-git apply --check path/to/zext-scenario-share/patch/zext-scenario-share-whip_core-1.0.1.patch
-git apply path/to/zext-scenario-share/patch/zext-scenario-share-whip_core-1.0.1.patch
+git apply --check path/to/zext-scenario-share/patch/zext-scenario-share-whip_core-1.2.0.patch
+git apply path/to/zext-scenario-share/patch/zext-scenario-share-whip_core-1.2.0.patch
 ```
 
 The first command only checks the patch. If it prints nothing, the second applies it. To take it back out later:
 
 ```bash
-git apply -R path/to/zext-scenario-share/patch/zext-scenario-share-whip_core-1.0.1.patch
+git apply -R path/to/zext-scenario-share/patch/zext-scenario-share-whip_core-1.2.0.patch
 ```
 
-Without git, the classic `patch` tool works too: `patch -p1 < zext-scenario-share-whip_core-1.0.1.patch`, run inside `whip_core`.
+Without git, the classic `patch` tool works too: `patch -p1 < zext-scenario-share-whip_core-1.2.0.patch`, run inside `whip_core`.
 
 ### Option C — other whip_core versions, by hand
 
 If your whip_core is newer, first try option B with three-way merging:
 
 ```bash
-git apply -3 path/to/zext-scenario-share-whip_core-1.0.1.patch
+git apply -3 path/to/zext-scenario-share-whip_core-1.2.0.patch
 ```
 
-If that fails, add the changes by hand. Everything this add-on adds is marked `PROJECT Z PATCH` in the three files in `whip_core-1.0.1/`, so search for that text and copy each marked block into the same place in your files:
+If that fails, add the changes by hand. Everything this add-on adds is marked `PROJECT Z PATCH` in the three files in `whip_core-1.2.0/`, so search for that text and copy each marked block into the same place in your files:
 
 | File | What to copy | Where it goes |
 |---|---|---|
@@ -276,7 +276,7 @@ Set `const HUB_URL = '';` in `director.js`, and `set zext_share_hub ""` in `serv
 
 **Updating whip_core overwrites these three files**, and the buttons disappear. Your scenarios, including imported ones, are untouched because they live in your database. After updating:
 
-- If the new whip_core is still **1.0.1**, re-copy the drop-in files (option A).
+- If the new whip_core is **1.2.0** (or 1.0.1), re-copy the drop-in files (option A).
 - If it's a newer version, use option C, or check this repository for a newer release.
 
 **To remove the add-on**, put back the three original files from your backup, or run `git apply -R …` (option B), then `restart whip_core`. Scenarios you imported stay. They're ordinary scenarios.
@@ -333,7 +333,7 @@ Errors are `{ "error": "words to show" }`. CORS is open, so a page or tool can c
 
 ## License and credits
 
-- **The whip_core changes** (`whip_core-1.0.1/` and `patch/`) are modified files of whip_core. Like whip_core, they're under the **GNU Lesser General Public License 3.0** (`COPYING.LESSER`, with the GPL 3.0 it builds on in `COPYING`). WHIP and whip_core are © Whippy. See WHIP's own `NOTICE.md`.
+- **The whip_core changes** (`whip_core-1.2.0/` and `patch/`) are modified files of whip_core. Like whip_core, they're under the **GNU Lesser General Public License 3.0** (`COPYING.LESSER`, with the GPL 3.0 it builds on in `COPYING`). WHIP and whip_core are © Whippy. See WHIP's own `NOTICE.md`.
 - **The hub** (`hub/`) is Zext's own code, under the **MIT License** (`hub/LICENSE`).
 - "WHIP" is used only to say what this works with. This add-on is not WHIP and isn't endorsed by WHIP's author.
 

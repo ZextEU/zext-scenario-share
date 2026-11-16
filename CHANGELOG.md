@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 (2026-11-16)
+
+- **Supports whip_core 1.2.0**, the latest WHIP-FX core. The three files this add-on changes are the same in whip_core 1.0.1 and 1.2.0, so the add-on itself is unchanged and works on both.
+- The drop-in folder is now `whip_core-1.2.0/`, and the patch is `patch/zext-scenario-share-whip_core-1.2.0.patch`. It was checked against WHIP's own v1.2.0 files: it applies, comes back out cleanly, and every whip_core function it uses is still there.
+
 ## 1.1.0 (2026-11-15)
 
 - **Resources can import Director creations.** New server export `ImportScenarioCode(code, opts?)` takes a short code, a long code, a scenario's JSON, or a scenario table, and makes a new switched-off scenario, with the same checks as Import code. It waits for the Director to finish loading after a restart.
