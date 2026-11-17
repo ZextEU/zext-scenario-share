@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.0 (2026-11-17)
+
+- **A resource of its own: no more whip_core edits.** Install `zext_scenario_share` and `ensure` it. WHIP updates no longer remove it.
+- Opened with **/scenarioshare** (Director builders, `director.build`): a Share tab listing every scenario, and an Import tab.
+- **Imports become Director templates** in the editor's New list. A builder's copy is an ordinary draft, switched off. Imports are kept in the resource's own table (`zext_scenario_share_imports`) and can be removed from the Import tab.
+- Exports moved to this resource: `exports.zext_scenario_share:ImportScenarioCode(code, { name? })` (returns `{ name, problems }`) and `GetScenarioShareCode(key, rev?)`.
+- The code format (`WDS1.`, `WDS0.`, `ZX-`) and the `zext_share_hub` convar are unchanged. Codes from 1.x import into 2.0 and the other way round.
+- Licence: the resource is now MIT, since it contains no WHIP code. The 1.x patch stays LGPL-3.0 in its releases.
+- **Untested in game yet.**
+
 ## 1.1.1 (2026-11-16)
 
 - **Supports whip_core 1.2.0**, the latest WHIP-FX core. The three files this add-on changes are the same in whip_core 1.0.1 and 1.2.0, so the add-on itself is unchanged and works on both.

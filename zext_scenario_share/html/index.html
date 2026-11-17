@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scenario Share</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app" hidden>
+  <div class="panel" role="dialog" aria-labelledby="title">
+    <header>
+      <h1 id="title">Scenario Share</h1>
+      <nav>
+        <button class="tab" data-tab="share" aria-selected="true">Share</button>
+        <button class="tab" data-tab="import" aria-selected="false">Import</button>
+      </nav>
+      <button class="close" id="close" aria-label="Close">Esc</button>
+    </header>
+
+    <section id="tab-share">
+      <div id="share-list">
+        <input id="filter" class="input" placeholder="Find a scenario" autocomplete="off" spellcheck="false">
+        <ul id="scenarios" class="rows"></ul>
+      </div>
+      <div id="share-code" hidden>
+        <button class="link" id="back">← All scenarios</button>
+        <h2 id="share-name"></h2>
+        <p class="note" id="share-about"></p>
+        <label class="label" for="code-out">Code <span id="code-len"></span></label>
+        <textarea id="code-out" class="code" readonly spellcheck="false"></textarea>
+        <div class="actions">
+          <button class="btn primary" id="copy">Copy code</button>
+          <button class="btn" id="get-short" hidden>Get short code</button>
+        </div>
+        <div id="short" hidden>
+          <label class="label" for="short-out">Short code</label>
+          <div class="short-row">
+            <input id="short-out" class="input short" readonly>
+            <button class="btn primary" id="copy-short">Copy</button>
+          </div>
+        </div>
+        <p class="note" id="short-note"></p>
+      </div>
+    </section>
+
+    <section id="tab-import" hidden>
+      <label class="label" for="code-in">Code</label>
+      <textarea id="code-in" class="code" spellcheck="false" placeholder="Paste a code here (ZX-… or WDS1.…)"></textarea>
+      <p class="note" id="preview"></p>
+      <label class="label" for="name-in">Name</label>
+      <input id="name-in" class="input" maxlength="60" placeholder="from the code" autocomplete="off">
+      <div class="actions">
+        <button class="btn primary" id="import" disabled>Import</button>
+      </div>
+      <p class="note">An import shows in the Director's <b>New</b> list as a template. Making a scenario from it gives you
+        a normal draft, switched off: look through its cards (Pay, Give Item, Charge) and run a Test before you switch it on.</p>
+      <h3>Imported on this server</h3>
+      <ul id="imports" class="rows"></ul>
+    </section>
+
+    <footer id="status" role="status" aria-live="polite"></footer>
+  </div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
